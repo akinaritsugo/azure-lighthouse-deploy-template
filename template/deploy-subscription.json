@@ -35,9 +35,13 @@
                 "description": "Specify the principal display name of the Managed Service Provider"
             }
         },
-        "mspRoleId": {
+        "mspRoleType": {
             "type": "string",
-            "defaultValue": "b24988ac-6180-42a0-ab88-20f7382dd24c",
+            "allowedValues": [
+              "Contributor",
+              "Reader"
+            ],
+            "defaultValue": "Contributor",
             "metadata": {
                 "description": "Specify the role definition id of the Managed Service Provider"
             }
@@ -45,7 +49,12 @@
     },
     "variables": {
         "mspRegistrationName": "[guid(parameters('mspOfferName'))]",
-        "mspAssignmentName": "[guid(parameters('mspOfferName'))]"
+        "mspAssignmentName": "[guid(parameters('mspOfferName'))]",
+        "mspRoleTypeList": {
+          "Contributor": "b24988ac-6180-42a0-ab88-20f7382dd24c",
+          "Reader": "acdd72a7-3385-48ef-bd42-f606fba81ae7"
+        },
+        "mspRoleId": "[variables('mspRoleTypeList')[parameters('mspRoleType')]]"
     },
     "resources": [
         {
@@ -60,8 +69,8 @@
                     {
                         "principalId": "[parameters('mspPrincipalId')]",
                         "principalIdDisplayName": "[parameters('mspPrincipalDisplayName')]",
-                        "roleDefinitionId": "[parameters('mspRoleId')]"
-                    },
+                        "roleDefinitionId": "[variables('mspRoleId')]"
+                    }
                 ]
             }
         },
@@ -88,8 +97,8 @@
                 {
                     "principalId": "[parameters('mspPrincipalId')]",
                     "principalIdDisplayName": "[parameters('mspPrincipalDisplayName')]",
-                    "roleDefinitionId": "[parameters('mspRoleId')]"
-                },
+                    "roleDefinitionId": "[variables('mspRoleId')]"
+                }
             ]
         }
     }
