@@ -1,0 +1,96 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "mspOfferName": {
+            "type": "string",
+            "defaultValue": "Integrated Support",
+            "metadata": {
+                "description": "Specify a unique name for your offer"
+            }
+        },
+        "mspOfferDescription": {
+            "type": "string",
+            "defaultValue": "Integrated Support",
+            "metadata": {
+                "description": "Name of the Managed Service Provider offering"
+            }
+        },
+        "mspTenantId": {
+            "type": "string",
+            "metadata": {
+                "description": "Specify the tenant id of the Managed Service Provider"
+            }
+        },
+        "mspPrincipalId": {
+            "type": "string",
+            "metadata": {
+                "description": "Specify the principal id of the Managed Service Provider"
+            }
+        },
+        "mspPrincipalDisplayName": {
+            "type": "string",
+            "defaultValue": "Integrated Support Group",
+            "metadata": {
+                "description": "Specify the principal display name of the Managed Service Provider"
+            }
+        },
+        "mspRoleId": {
+            "type": "string",
+            "defaultValue": "b24988ac-6180-42a0-ab88-20f7382dd24c",
+            "metadata": {
+                "description": "Specify the role definition id of the Managed Service Provider"
+            }
+        }        
+    },
+    "variables": {
+        "mspRegistrationName": "[guid(parameters('mspOfferName'))]",
+        "mspAssignmentName": "[guid(parameters('mspOfferName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ManagedServices/registrationDefinitions",
+            "apiVersion": "2019-09-01",
+            "name": "[variables('mspRegistrationName')]",
+            "properties": {
+                "registrationDefinitionName": "[parameters('mspOfferName')]",
+                "description": "[parameters('mspOfferDescription')]",
+                "managedByTenantId": "[parameters('mspTenantId')]",
+                "authorizations": [
+                    {
+                        "principalId": "[parameters('mspPrincipalId')]",
+                        "principalIdDisplayName": "[parameters('mspPrincipalDisplayName')]",
+                        "roleDefinitionId": "[parameters('mspRoleId')]"
+                    },
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ManagedServices/registrationAssignments",
+            "apiVersion": "2019-09-01",
+            "name": "[variables('mspAssignmentName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ManagedServices/registrationDefinitions/', variables('mspRegistrationName'))]"
+            ],
+            "properties": {
+                "registrationDefinitionId": "[resourceId('Microsoft.ManagedServices/registrationDefinitions/', variables('mspRegistrationName'))]"
+            }
+        }
+    ],
+    "outputs": {
+        "mspOfferName": {
+            "type": "string",
+            "value": "[concat('Managed by', ' ', parameters('mspOfferName'))]"
+        },
+        "authorizations": {
+            "type": "array",
+            "value": [
+                {
+                    "principalId": "[parameters('mspPrincipalId')]",
+                    "principalIdDisplayName": "[parameters('mspPrincipalDisplayName')]",
+                    "roleDefinitionId": "[parameters('mspRoleId')]"
+                },
+            ]
+        }
+    }
+}
